@@ -1,16 +1,63 @@
-# All LiteLLM Kubernetes resources (namespace, secrets, ConfigMap, helm_release,
-# Gateway API kubectl_manifests) have been migrated to ArgoCD + ESO.
-# See live/argocd.tf for the ArgoCD Application and k8s/litellm/ for manifests.
-#
-# Pod Identity association for LiteLLM (Bedrock access) remains in irsa.tf.
-#
-# Before removing the old resources from Terraform state, run:
-#   terraform state rm kubernetes_namespace.litellm
-#   terraform state rm kubernetes_secret.litellm
-#   terraform state rm kubernetes_secret.langfuse_litellm_keys
-#   terraform state rm kubernetes_config_map.litellm_guardrails
-#   terraform state rm helm_release.litellm
-#   terraform state rm kubectl_manifest.litellm_target_group_config
-#   terraform state rm kubectl_manifest.litellm_lb_config
-#   terraform state rm kubectl_manifest.litellm_gateway
-#   terraform state rm kubectl_manifest.litellm_httproute
+resource "kubectl_manifest" "litellm_external_secret" {
+  yaml_body = yamlencode({
+    apiVersion = "external-secrets.io/v1beta1"
+    kind       = "ExternalSecret"
+    metadata = {
+      name      = "litellm-secrets"
+      namespace = "litellm"
+      annotations = {
+        "argocd.argoproj.io/sync-wave" = "-1"
+      }
+    }
+    spec = {
+      refreshInterval = "1h"
+      secretStoreRef = {
+        name = "aws-secrets-manager"
+        kind = "ClusterSecretStore"
+      }
+      target = {
+        name           = "litellm-secrets"
+        creationPolicy = "Owner"
+      }
+      data = [
+        {
+          secretKey = "LITELLM_MASTER_KEY"
+          remoteRef = {
+            key      = "litellm-eks/litellm-secrets"
+            property = "LITELLM_MASTER_KEY"
+          }
+        },
+        {
+          secretKey = "username"
+          remoteRef = {
+            key      = module.rds.db_instance_master_user_secret_arn
+            property = "username"
+          }
+        },
+        {
+          secretKey = "password"
+          remoteRef = {
+            key      = module.rds.db_instance_master_user_secret_arn
+            property = "password"
+          }
+        },
+        {
+          secretKey = "LANGFUSE_PUBLIC_KEY"
+          remoteRef = {
+            key      = "litellm-eks/litellm-secrets"
+            property = "LANGFUSE_PUBLIC_KEY"
+          }
+        },
+        {
+          secretKey = "LANGFUSE_SECRET_KEY"
+          remoteRef = {
+            key      = "litellm-eks/litellm-secrets"
+            property = "LANGFUSE_SECRET_KEY"
+          }
+        },
+      ]
+    }
+  })
+
+  depends_on = [kubectl_manifest.argocd_eso]
+}

@@ -105,12 +105,7 @@ resource "kubectl_manifest" "argocd_litellm" {
           repoURL        = local.git_repo
           targetRevision = local.git_branch
           ref            = "values"
-        },
-        {
-          repoURL        = local.git_repo
-          targetRevision = local.git_branch
-          path           = "k8s/litellm/manifests"
-        },
+        }
       ]
       destination = {
         server    = "https://kubernetes.default.svc"
@@ -126,5 +121,5 @@ resource "kubectl_manifest" "argocd_litellm" {
     }
   })
 
-  depends_on = [module.eks_blueprints_addons, kubectl_manifest.argocd_eso]
+  depends_on = [module.eks_blueprints_addons, kubectl_manifest.argocd_eso, kubectl_manifest.litellm_external_secret]
 }
