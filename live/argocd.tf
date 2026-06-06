@@ -20,7 +20,7 @@ resource "kubectl_manifest" "argocd_eso" {
       syncPolicy = {
         automated = {
           prune    = true
-          selfHeal = true
+          selfHeal = false
         }
         syncOptions = ["CreateNamespace=true"]
       }
@@ -44,7 +44,7 @@ resource "kubectl_manifest" "argocd_langfuse" {
         {
           repoURL        = "https://langfuse.github.io/langfuse-k8s"
           chart          = "langfuse"
-          targetRevision = "1.5.32"
+          targetRevision = "1.5.33"
           helm = {
             valueFiles = ["$values/k8s/langfuse/values.yaml"]
             parameters = [

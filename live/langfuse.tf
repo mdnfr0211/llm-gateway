@@ -79,9 +79,6 @@ resource "kubectl_manifest" "langfuse_external_secret" {
     metadata = {
       name      = "langfuse-secrets"
       namespace = "langfuse"
-      annotations = {
-        "argocd.argoproj.io/sync-wave" = "-1"
-      }
     }
     spec = {
       refreshInterval = "1h"
