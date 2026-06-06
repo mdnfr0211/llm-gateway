@@ -23,12 +23,12 @@ extraEnvVars:
   - name: LANGFUSE_PUBLIC_KEY
     valueFrom:
       secretKeyRef:
-        name: langfuse-litellm-keys
+        name: litellm-secrets
         key: LANGFUSE_PUBLIC_KEY
   - name: LANGFUSE_SECRET_KEY
     valueFrom:
       secretKeyRef:
-        name: langfuse-litellm-keys
+        name: litellm-secrets
         key: LANGFUSE_SECRET_KEY
   - name: LANGFUSE_HOST
     value: "http://langfuse-web.langfuse.svc.cluster.local:3000"
