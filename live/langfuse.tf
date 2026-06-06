@@ -89,6 +89,12 @@ resource "kubectl_manifest" "langfuse_external_secret" {
       target = {
         name           = "langfuse-secrets"
         creationPolicy = "Owner"
+        template = {
+          mergePolicy = "Merge"
+          data = {
+            DATABASE_PASSWORD = "{{ .DATABASE_PASSWORD | urlquery }}"
+          }
+        }
       }
       data = [
         {

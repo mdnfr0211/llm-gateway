@@ -20,7 +20,7 @@ resource "kubectl_manifest" "argocd_eso" {
       syncPolicy = {
         automated = {
           prune    = true
-          selfHeal = false
+          selfHeal = true
         }
         syncOptions = ["CreateNamespace=true"]
       }
@@ -94,9 +94,9 @@ resource "kubectl_manifest" "argocd_litellm" {
       project = "default"
       sources = [
         {
-          repoURL        = "oci://docker.litellm.ai/berriai"
-          chart          = "litellm-helm"
+          repoURL        = "oci://docker.litellm.ai/berriai/litellm-helm"
           targetRevision = "1.86.2"
+          path           = "."
           helm = {
             valueFiles = ["$values/k8s/litellm/values.yaml"]
           }
