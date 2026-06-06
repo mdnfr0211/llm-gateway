@@ -1,0 +1,131 @@
+global:
+  storageClass: gp3
+
+serviceAccount:
+  create: true
+  name: langfuse
+
+langfuse:
+  logging:
+    level: info
+    format: text
+
+  salt:
+    secretKeyRef:
+      name: langfuse-secrets
+      key: SALT
+
+  nextauth:
+    secret:
+      secretKeyRef:
+        name: langfuse-secrets
+        key: NEXTAUTH_SECRET
+
+  telemetry:
+    enabled: false
+
+  additionalEnv:
+    - name: LANGFUSE_INIT_ORG_ID
+      value: "default-org"
+    - name: LANGFUSE_INIT_ORG_NAME
+      value: "litellm-eks"
+    - name: LANGFUSE_INIT_PROJECT_ID
+      value: "default-project"
+    - name: LANGFUSE_INIT_PROJECT_NAME
+      value: "default"
+    - name: LANGFUSE_INIT_PROJECT_PUBLIC_KEY
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: LANGFUSE_PUBLIC_KEY
+    - name: LANGFUSE_INIT_PROJECT_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: LANGFUSE_SECRET_KEY
+    - name: LANGFUSE_INIT_USER_EMAIL
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: INIT_USER_EMAIL
+    - name: LANGFUSE_INIT_USER_NAME
+      value: "Admin"
+    - name: LANGFUSE_INIT_USER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: langfuse-secrets
+          key: INIT_USER_PASSWORD
+
+  pod:
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: langfuse
+
+  nodeSelector:
+    workload: langfuse
+
+  tolerations:
+    - key: workload
+      operator: Equal
+      value: langfuse
+      effect: NoSchedule
+
+redis:
+  deploy: true
+  auth:
+    existingSecret: langfuse-secrets
+    existingSecretPasswordKey: REDIS_PASSWORD
+  master:
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: langfuse
+
+postgresql:
+  deploy: false
+  host: ""
+  port: 5432
+  auth:
+    username: litellm_admin
+    database: langfuse
+    existingSecret: langfuse-secrets
+    secretKeys:
+      userPasswordKey: DATABASE_PASSWORD
+
+clickhouse:
+  deploy: true
+  auth:
+    existingSecret: langfuse-secrets
+    existingSecretKey: CLICKHOUSE_PASSWORD
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/instance: langfuse
+
+s3:
+  deploy: false
+  bucket: ""
+  region: "ap-southeast-1"
+  forcePathStyle: false
+
+service:
+  type: ClusterIP
+  port: 3000
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi

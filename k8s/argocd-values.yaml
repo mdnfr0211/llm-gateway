@@ -1,0 +1,16 @@
+global:
+  domain: argocd.local
+server:
+  replicas: 1
+  extraArgs:
+    - --insecure
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+controller:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
