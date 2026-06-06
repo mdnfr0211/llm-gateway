@@ -111,6 +111,7 @@ clickhouse:
       labelSelector:
         matchLabels:
           app.kubernetes.io/instance: langfuse
+  replicas: 1
 
 s3:
   deploy: false
