@@ -10,8 +10,9 @@ module "eks_blueprints_addons" {
   # ArgoCD
   enable_argocd = true
   argocd = {
-    namespace = "argocd"
-    values    = [file("${path.module}/../k8s/argocd-values.yaml")]
+    namespace     = "argocd"
+    chart_version = "9.5.18"
+    values        = [file("${path.module}/../k8s/argocd-values.yaml")]
   }
 
   enable_aws_load_balancer_controller = true

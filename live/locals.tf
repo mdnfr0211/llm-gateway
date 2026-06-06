@@ -7,6 +7,6 @@ locals {
   db_password    = local.db_credentials["password"]
   db_host        = module.rds.db_instance_address
 
-  git_repo = "https://github.com/mdnfr0211/llm-gateway"
-  git_branch = "master"
+  git_repo   = "https://github.com/mdnfr0211/llm-gateway"
+  git_branch = "main"
 }

@@ -135,7 +135,8 @@ resource "aws_iam_policy" "eso" {
         ]
         Resource = [
           "arn:aws:secretsmanager:ap-southeast-1:${data.aws_caller_identity.current.account_id}:secret:litellm-eks/langfuse-secrets-LnoRLt",
-          "arn:aws:secretsmanager:ap-southeast-1:${data.aws_caller_identity.current.account_id}:secret:litellm-eks/litellm-secrets-sk2IOS"
+          "arn:aws:secretsmanager:ap-southeast-1:${data.aws_caller_identity.current.account_id}:secret:litellm-eks/litellm-secrets-sk2IOS",
+          module.rds.db_instance_master_user_secret_arn,
         ]
       }
     ]
@@ -150,6 +151,6 @@ resource "aws_iam_role_policy_attachment" "eso" {
 resource "aws_eks_pod_identity_association" "eso" {
   cluster_name    = module.eks.cluster_name
   namespace       = "external-secrets"
-  service_account = "external-secrets"
+  service_account = "external-secrets-sa"
   role_arn        = aws_iam_role.eso.arn
 }
