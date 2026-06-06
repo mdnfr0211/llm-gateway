@@ -82,16 +82,6 @@ variable "langfuse_db_secret_name" {
   default     = "langfuse/database"
 }
 
-# litellm_master_key, langfuse_init_user_email, langfuse_init_user_name, and
-# langfuse_init_user_password have been moved to AWS Secrets Manager (secrets.tf).
-# They are still referenced as TF variables so the secrets.tf can populate SM.
-variable "litellm_master_key" {
-  description = "LiteLLM master/admin key (written to AWS Secrets Manager)"
-  type        = string
-  sensitive   = true
-  default     = "sk-tREjbbyrLevnouz9zsRo"
-}
-
 variable "langfuse_init_user_email" {
   description = "Email for the initial Langfuse admin user (written to AWS Secrets Manager)"
   type        = string
