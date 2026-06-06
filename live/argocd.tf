@@ -109,7 +109,7 @@ resource "kubectl_manifest" "argocd_litellm" {
         {
           repoURL        = local.git_repo
           targetRevision = local.git_branch
-          ref            = "k8s/litellm/manifests"
+          path           = "k8s/litellm/manifests"
         }
       ]
       destination = {
