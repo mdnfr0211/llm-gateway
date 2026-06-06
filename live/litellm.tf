@@ -18,6 +18,12 @@ resource "kubectl_manifest" "litellm_external_secret" {
       target = {
         name           = "litellm-secrets"
         creationPolicy = "Owner"
+        template = {
+          mergePolicy = "Merge"
+          data = {
+            password = "{{ .password | urlquery }}"
+          }
+        }
       }
       data = [
         {
