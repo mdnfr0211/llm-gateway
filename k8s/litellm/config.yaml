@@ -1,0 +1,68 @@
+model_list:
+  - model_name: amazon-nova-lite-2
+    litellm_params:
+      model: bedrock/global.amazon.nova-2-lite-v1:0
+      aws_region_name: ap-southeast-1
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+  num_retries: 3
+  request_timeout: 120
+  store_model_in_db: true
+  callbacks: ["prometheus", "langfuse"]
+  require_auth_for_metrics_endpoint: false
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+
+guardrails:
+  - guardrail_name: "content-filter"
+    litellm_params:
+      guardrail: litellm_content_filter
+      mode: pre_call
+      categories:
+        - category: "harmful_self_harm"
+          enabled: true
+          action: "BLOCK"
+          severity_threshold: "medium"
+        - category: "harmful_violence"
+          enabled: true
+          action: "BLOCK"
+          severity_threshold: "medium"
+        - category: "harmful_illegal_weapons"
+          enabled: true
+          action: "BLOCK"
+          severity_threshold: "medium"
+      patterns:
+        - pattern_type: "prebuilt"
+          pattern_name: "email"
+          action: "MASK"
+        - pattern_type: "prebuilt"
+          pattern_name: "sg_phone"
+          action: "MASK"
+        - pattern_type: "prebuilt"
+          pattern_name: "sg_nric"
+          action: "BLOCK"
+        - pattern_type: "prebuilt"
+          pattern_name: "sg_postal_code"
+          action: "MASK"
+        - pattern_type: "prebuilt"
+          pattern_name: "passport_singapore"
+          action: "BLOCK"
+        - pattern_type: "prebuilt"
+          pattern_name: "sg_uen"
+          action: "MASK"
+        - pattern_type: "prebuilt"
+          pattern_name: "sg_bank_account"
+          action: "BLOCK"
+        - pattern_type: "prebuilt"
+          pattern_name: "aws_access_key"
+          action: "BLOCK"
+        - pattern_type: "prebuilt"
+          pattern_name: "aws_secret_key"
+          action: "BLOCK"
+        - pattern_type: "prebuilt"
+          pattern_name: "github_token"
+          action: "BLOCK"
+
