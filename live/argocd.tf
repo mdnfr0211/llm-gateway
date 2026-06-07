@@ -102,7 +102,6 @@ resource "kubectl_manifest" "argocd_litellm" {
         {
           repoURL        = "oci://docker.litellm.ai/berriai/litellm-helm"
           targetRevision = "1.86.2"
-          path           = "."
           helm = {
             valueFiles = ["$values/k8s/litellm/values.yaml"]
             parameters = [
