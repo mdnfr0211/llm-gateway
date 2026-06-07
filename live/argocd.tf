@@ -126,7 +126,7 @@ resource "kubectl_manifest" "argocd_litellm" {
           repoURL        = local.git_repo
           targetRevision = local.git_branch
           path           = "k8s/litellm/manifests"
-        }
+        },
       ]
       destination = {
         server    = "https://kubernetes.default.svc"
@@ -146,5 +146,46 @@ resource "kubectl_manifest" "argocd_litellm" {
     module.eks_blueprints_addons,
     kubectl_manifest.argocd_eso,
     kubectl_manifest.litellm_external_secret,
+  ]
+}
+
+resource "kubectl_manifest" "argocd_prometheus" {
+  yaml_body = yamlencode({
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "Application"
+    metadata = {
+      name      = "prometheus"
+      namespace = "argocd"
+    }
+    spec = {
+      project = "default"
+      sources = [
+        {
+          repoURL        = local.git_repo
+          targetRevision = local.git_branch
+          path           = "k8s/monitoring"
+          directory = {
+            include = "*.yaml"
+          }
+        },
+      ]
+      destination = {
+        server    = "https://kubernetes.default.svc"
+        namespace = "monitoring"
+      }
+      syncPolicy = {
+        automated = {
+          prune    = true
+          selfHeal = true
+        }
+        syncOptions = ["CreateNamespace=true"]
+      }
+    }
+  })
+
+  depends_on = [
+    module.eks_blueprints_addons,
+    kubectl_manifest.argocd_eso,
+    kubectl_manifest.argocd_litellm,
   ]
 }
