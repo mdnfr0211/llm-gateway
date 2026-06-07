@@ -1,10 +1,4 @@
-data "aws_caller_identity" "current" {}
-
-data "aws_secretsmanager_secret_version" "db_credential" {
-  secret_id = module.rds.db_instance_master_user_secret_arn
-}
-
-data "http" "gateway_api_crds" {
+resource "kubectl_manifest" "gateway_api_crds" {
   for_each = toset([
     "https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.5.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml",
     "https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.5.0/config/crd/standard/gateway.networking.k8s.io_gateways.yaml",
@@ -13,9 +7,20 @@ data "http" "gateway_api_crds" {
     "https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.5.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml",
   ])
 
-  url = each.key
+  yaml_body = data.http.gateway_api_crds[each.key].response_body
 }
 
-data "aws_availability_zones" "available" {
-  state = "available"
+resource "kubectl_manifest" "alb_gateway_class" {
+  yaml_body = yamlencode({
+    apiVersion = "gateway.networking.k8s.io/v1"
+    kind       = "GatewayClass"
+    metadata = {
+      name = "amazon-alb"
+    }
+    spec = {
+      controllerName = "gateway.k8s.aws/alb"
+    }
+  })
+
+  depends_on = [kubectl_manifest.gateway_api_crds, module.eks_blueprints_addons]
 }

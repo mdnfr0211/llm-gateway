@@ -13,13 +13,15 @@ service:
   port: 4000
 
 extraEnvVars:
+  - name: AWS_DEFAULT_REGION
+    value: "ap-southeast-1"
+  - name: LANGFUSE_HOST
+    value: "http://langfuse-web.langfuse.svc.cluster.local:3000"
   - name: LITELLM_MASTER_KEY
     valueFrom:
       secretKeyRef:
         name: litellm-secrets
         key: LITELLM_MASTER_KEY
-  - name: AWS_DEFAULT_REGION
-    value: "ap-southeast-1"
   - name: LANGFUSE_PUBLIC_KEY
     valueFrom:
       secretKeyRef:
@@ -30,14 +32,12 @@ extraEnvVars:
       secretKeyRef:
         name: litellm-secrets
         key: LANGFUSE_SECRET_KEY
-  - name: LANGFUSE_HOST
-    value: "http://langfuse-web.langfuse.svc.cluster.local:3000"
 
 db:
   useExisting: true
   deployStandalone: false
-  endpoint: litellm-eks-db.c1ckq8gqkas8.ap-southeast-1.rds.amazonaws.com
-  database: litellm
+  endpoint: ""
+  database: ""
   secret:
     name: litellm-secrets
     usernameKey: username
@@ -139,6 +139,11 @@ tolerations:
     operator: Equal
     value: litellm
     effect: NoSchedule
+
+migrationJob:
+  hooks:
+    argocd:
+      enabled: false
 
 topologySpreadConstraints:
   - maxSkew: 1

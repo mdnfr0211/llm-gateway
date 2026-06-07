@@ -1,11 +1,3 @@
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
-locals {
-  azs = slice(data.aws_availability_zones.available.names, 0, 3)
-}
-
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
@@ -34,11 +26,5 @@ module "vpc" {
     "kubernetes.io/role/internal-elb"           = 1
     "kubernetes.io/cluster/${var.cluster_name}" = "owned"
     "karpenter.sh/discovery"                    = var.cluster_name
-  }
-
-  tags = {
-    Environment = var.environment
-    Project     = "litellm"
-    ManagedBy   = "terraform"
   }
 }

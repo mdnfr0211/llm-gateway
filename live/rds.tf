@@ -33,10 +33,6 @@ module "rds" {
   monitoring_interval          = 0
 
   iam_database_authentication_enabled = false
-
-  tags = {
-    Environment = var.environment
-  }
 }
 
 resource "aws_security_group" "rds" {
@@ -57,9 +53,5 @@ resource "aws_security_group" "rds" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.cluster_name}-rds"
   }
 }

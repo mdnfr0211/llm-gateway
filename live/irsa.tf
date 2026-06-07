@@ -87,8 +87,8 @@ resource "aws_iam_policy" "langfuse_s3" {
           "s3:DeleteObject"
         ]
         Resource = [
-          aws_s3_bucket.langfuse_events.arn,
-          "${aws_s3_bucket.langfuse_events.arn}/*"
+          module.s3_langfuse.s3_bucket_arn,
+          "${module.s3_langfuse.s3_bucket_arn}/*"
         ]
       }
     ]

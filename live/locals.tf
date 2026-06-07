@@ -1,4 +1,6 @@
 locals {
+  azs = slice(data.aws_availability_zones.available.names, 0, 3)
+
   langfuse_db = "langfuse"
   litellm_db  = "litellm"
 

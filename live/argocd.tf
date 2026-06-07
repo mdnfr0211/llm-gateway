@@ -27,7 +27,9 @@ resource "kubectl_manifest" "argocd_eso" {
     }
   })
 
-  depends_on = [module.eks_blueprints_addons]
+  depends_on = [
+    module.eks_blueprints_addons,
+  ]
 }
 
 resource "kubectl_manifest" "argocd_langfuse" {
@@ -50,7 +52,7 @@ resource "kubectl_manifest" "argocd_langfuse" {
             parameters = [
               {
                 name  = "s3.bucket"
-                value = aws_s3_bucket.langfuse_events.id
+                value = module.s3_langfuse.s3_bucket_id
               },
               {
                 name  = "postgresql.host"
@@ -79,7 +81,11 @@ resource "kubectl_manifest" "argocd_langfuse" {
     }
   })
 
-  depends_on = [module.eks_blueprints_addons, kubectl_manifest.argocd_eso, kubectl_manifest.langfuse_external_secret]
+  depends_on = [
+    module.eks_blueprints_addons,
+    kubectl_manifest.argocd_eso,
+    kubectl_manifest.langfuse_external_secret,
+  ]
 }
 
 resource "kubectl_manifest" "argocd_litellm" {
@@ -99,6 +105,16 @@ resource "kubectl_manifest" "argocd_litellm" {
           path           = "."
           helm = {
             valueFiles = ["$values/k8s/litellm/values.yaml"]
+            parameters = [
+              {
+                name  = "db.endpoint"
+                value = module.rds.db_instance_address
+              },
+              {
+                name  = "db.database"
+                value = local.litellm_db
+              }
+            ]
           }
         },
         {
@@ -126,5 +142,9 @@ resource "kubectl_manifest" "argocd_litellm" {
     }
   })
 
-  depends_on = [module.eks_blueprints_addons, kubectl_manifest.argocd_eso, kubectl_manifest.litellm_external_secret]
+  depends_on = [
+    module.eks_blueprints_addons,
+    kubectl_manifest.argocd_eso,
+    kubectl_manifest.litellm_external_secret,
+  ]
 }

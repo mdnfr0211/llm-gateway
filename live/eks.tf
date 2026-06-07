@@ -62,12 +62,6 @@ module "eks" {
   node_security_group_tags = {
     "karpenter.sh/discovery" = var.cluster_name
   }
-
-  tags = {
-    Environment = var.environment
-    Project     = "litellm"
-    ManagedBy   = "terraform"
-  }
 }
 
 resource "aws_eks_access_entry" "karpenter_nodes" {

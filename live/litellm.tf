@@ -1,3 +1,9 @@
+resource "kubernetes_namespace" "litellm" {
+  metadata {
+    name = "litellm"
+  }
+}
+
 resource "kubectl_manifest" "litellm_external_secret" {
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
@@ -65,5 +71,8 @@ resource "kubectl_manifest" "litellm_external_secret" {
     }
   })
 
-  depends_on = [kubectl_manifest.argocd_eso]
+  depends_on = [
+    kubernetes_namespace.litellm,
+    kubectl_manifest.argocd_eso,
+  ]
 }
